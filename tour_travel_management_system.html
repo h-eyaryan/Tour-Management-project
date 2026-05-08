@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WanderLux Travel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --gold:#C9A84C;--gold-light:#F0D080;--dark:#0D0D0D;--dark2:#1A1A2E;--dark3:#16213E;
+    --cream:#FAF7F2;--white:#FFFFFF;--text-light:#F0EDE8;--text-muted:#9E9B95;
+    --card-bg:rgba(255,255,255,0.06);--border:rgba(201,168,76,0.3);
+    --success:#2ECC71;--error:#E74C3C;--blue:#3498DB;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--dark2);color:var(--text-light);min-height:100vh;overflow-x:hidden}
+  
+  /* ===== VIEWS ===== */
+  .view{display:none;min-height:100vh}
+  .view.active{display:block}
+
+  /* ===== NAVBAR ===== */
+  nav{position:fixed;top:0;width:100%;z-index:1000;padding:0 2rem;height:70px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,13,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+  .logo{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold);letter-spacing:1px;cursor:pointer}
+  .logo span{color:var(--text-light)}
+  .nav-links{display:flex;gap:1.5rem;align-items:center}
+  .nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;cursor:pointer}
+  .nav-links a:hover{color:var(--gold)}
+  .nav-btn{background:var(--gold);color:var(--dark);padding:0.5rem 1.2rem;border-radius:25px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;transition:all 0.2s}
+  .nav-btn:hover{background:var(--gold-light)}
+  .nav-btn.outline{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .nav-btn.outline:hover{background:var(--gold);color:var(--dark)}
+
+  /* ===== HERO ===== */
+  .hero{height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .hero-bg{position:absolute;inset:0;z-index:0}
+  .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s;background-size:cover;background-position:center}
+  .slide.active-slide{opacity:1}
+  .slide-1{background:linear-gradient(135deg,#0D0D0D 0%,#1A1A2E 40%,#16213E 100%)}
+  .slide-2{background:linear-gradient(135deg,#1A0E2E 0%,#0D1B2A 40%,#0A1628 100%)}
+  .slide-3{background:linear-gradient(135deg,#0E1A0D 0%,#0D1F2D 50%,#1A1208 100%)}
+  .hero-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:1}
+  .hero-art{position:absolute;inset:0;z-index:0;overflow:hidden}
+  .hero-art svg{width:100%;height:100%;opacity:0.15}
+  .hero-content{position:relative;z-index:2;text-align:center;padding:2rem}
+  .hero-badge{display:inline-block;background:rgba(201,168,76,0.2);border:1px solid var(--gold);color:var(--gold);padding:0.4rem 1.2rem;border-radius:25px;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem}
+  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.5rem);line-height:1.1;margin-bottom:1.2rem}
+  .hero h1 span{color:var(--gold)}
+  .hero p{color:var(--text-muted);font-size:1.1rem;max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+  .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+  .btn-primary{background:var(--gold);color:var(--dark);padding:0.85rem 2rem;border-radius:30px;font-weight:600;font-size:0.95rem;border:none;cursor:pointer;transition:all 0.3s;letter-spacing:0.5px}
+  .btn-primary:hover{background:var(--gold-light);transform:translateY(-2px)}
+  .btn-secondary{background:transparent;color:var(--text-light);padding:0.85rem 2rem;border-radius:30px;font-weight:500;font-size:0.95rem;border:1.5px solid rgba(255,255,255,0.3);cursor:pointer;transition:all 0.3s}
+  .btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+  .carousel-dots{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;transition:all 0.3s}
+  .dot.active{background:var(--gold);width:24px;border-radius:4px}
+
+  /* ===== SECTIONS ===== */
+  section{padding:5rem 2rem}
+  .section-header{text-align:center;margin-bottom:3.5rem}
+  .section-label{color:var(--gold);font-size:0.8rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.8rem}
+  .section-title{font-family:'Playfair Display',serif;font-size:2.5rem;margin-bottom:1rem}
+  .section-sub{color:var(--text-muted);max-width:500px;margin:0 auto;line-height:1.7}
+
+  /* ===== CARDS ===== */
+  .tours-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:1200px;margin:0 auto}
+  .tour-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;transition:all 0.3s;cursor:pointer}
+  .tour-card:hover{transform:translateY(-6px);border-color:var(--border);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+  .card-img{height:180px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .card-img svg{width:100%;height:100%}
+  .card-badge{position:absolute;top:12px;right:12px;background:var(--gold);color:var(--dark);padding:0.25rem 0.7rem;border-radius:12px;font-size:0.75rem;font-weight:600}
+  .card-body{padding:1.2rem}
+  .card-location{color:var(--gold);font-size:0.8rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.4rem}
+  .card-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.6rem}
+  .card-meta{display:flex;gap:1rem;color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem}
+  .card-footer{display:flex;align-items:center;justify-content:space-between}
+  .card-price{font-size:1.4rem;font-weight:700;color:var(--gold)}
+  .card-price span{font-size:0.8rem;color:var(--text-muted);font-weight:400}
+  .book-btn{background:var(--gold);color:var(--dark);border:none;padding:0.5rem 1.2rem;border-radius:20px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+  .book-btn:hover{background:var(--gold-light)}
+
+  /* ===== FEATURES ===== */
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto}
+  .feature-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:1.8rem;text-align:center;transition:border-color 0.3s}
+  .feature-card:hover{border-color:var(--border)}
+  .feat-icon{width:52px;height:52px;background:rgba(201,168,76,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.4rem}
+  .feat-title{font-weight:600;margin-bottom:0.5rem}
+  .feat-desc{color:var(--text-muted);font-size:0.875rem;line-height:1.6}
+
+  /* ===== MODAL ===== */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+  .modal-overlay.open{display:flex}
+  .modal{background:#1A1A2E;border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:90%;max-width:440px;position:relative;animation:slideUp 0.3s ease}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1}
+  .modal-close:hover{color:var(--text-light)}
+  .modal-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:0.4rem}
+  .modal-sub{color:var(--text-muted);font-size:0.875rem;margin-bottom:2rem}
+  .form-group{margin-bottom:1.2rem}
+  .form-group label{display:block;font-size:0.82rem;color:var(--text-muted);margin-bottom:0.4rem;letter-spacing:0.5px}
+  .form-group input, .form-group select{width:100%;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:var(--text-light);font-size:0.9rem;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;outline:none}
+  .form-group input:focus, .form-group select:focus{border-color:var(--gold)}
+  .form-group select option{background:#1A1A2E}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem}
+  .form-btn{width:100%;padding:0.85rem;background:var(--gold);color:var(--dark);border:none;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.5rem;font-family:'DM Sans',sans-serif}
+  .form-btn:hover{background:var(--gold-light)}
+  .modal-switch{text-align:center;margin-top:1.2rem;font-size:0.875rem;color:var(--text-muted)}
+  .modal-switch a{color:var(--gold);cursor:pointer;text-decoration:none}
+  .modal-switch a:hover{text-decoration:underline}
+  .msg{padding:0.6rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem}
+  .msg.success{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);color:#2ECC71}
+  .msg.error{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#E74C3C}
+
+  /* ===== DASHBOARD (client) ===== */
+  .dashboard-layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;padding-top:70px}
+  .sidebar{background:rgba(13,13,13,0.95);border-right:1px solid var(--border);padding:2rem 0;position:sticky;top:70px;height:calc(100vh - 70px)}
+  .sidebar-nav{list-style:none}
+  .sidebar-nav li a{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:0.9rem;transition:all 0.2s;cursor:pointer;border-left:3px solid transparent}
+  .sidebar-nav li a:hover, .sidebar-nav li a.active{color:var(--gold);background:rgba(201,168,76,0.08);border-left-color:var(--gold)}
+  .sidebar-user{padding:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+  .user-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8B6914);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:var(--dark);margin-bottom:0.6rem}
+  .user-name{font-weight:600;font-size:0.95rem}
+  .user-role{font-size:0.78rem;color:var(--text-muted)}
+  .dash-content{padding:2rem}
+
+  /* ===== ADMIN PANEL ===== */
+  .admin-header{background:rgba(13,13,13,0.95);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;width:100%;z-index:1000;height:70px}
+  .admin-logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold)}
+  .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh;padding-top:70px}
+  .admin-sidebar{background:#0D0D0D;border-right:1px solid rgba(201,168,76,0.2);padding:1.5rem 0;position:sticky;top:70px;height:calc(100vh - 70px);overflow-y:auto}
+  .admin-nav li{list-style:none}
+  .admin-nav li a{display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;color:var(--text-muted);text-decoration:none;font-size:0.875rem;transition:all 0.2s;cursor:pointer;border-left:3px solid transparent}
+  .admin-nav li a:hover,.admin-nav li a.active{color:var(--gold);background:rgba(201,168,76,0.07);border-left-color:var(--gold)}
+  .admin-main{padding:2rem;background:var(--dark3)}
+  .page-title{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:0.3rem}
+  .page-sub{color:var(--text-muted);font-size:0.875rem;margin-bottom:2rem}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+  .stat-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.4rem}
+  .stat-icon{font-size:1.5rem;margin-bottom:0.6rem}
+  .stat-val{font-size:2rem;font-weight:700;color:var(--gold)}
+  .stat-lbl{color:var(--text-muted);font-size:0.8rem;margin-top:0.2rem}
+  .stat-change{font-size:0.78rem;color:var(--success);margin-top:0.3rem}
+  .admin-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+  .admin-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+  .admin-card-title{font-weight:600;font-size:1rem}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:0.875rem}
+  thead tr{border-bottom:1px solid rgba(255,255,255,0.08)}
+  th{text-align:left;padding:0.6rem 0.8rem;color:var(--text-muted);font-weight:500;font-size:0.8rem;letter-spacing:0.5px}
+  td{padding:0.75rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.04)}
+  tr:hover td{background:rgba(255,255,255,0.02)}
+  .badge{display:inline-block;padding:0.25rem 0.65rem;border-radius:20px;font-size:0.75rem;font-weight:500}
+  .badge-success{background:rgba(46,204,113,0.12);color:#2ECC71}
+  .badge-warn{background:rgba(243,156,18,0.12);color:#F39C12}
+  .badge-error{background:rgba(231,76,60,0.12);color:#E74C3C}
+  .badge-info{background:rgba(52,152,219,0.12);color:#3498DB}
+  .action-btn{background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);padding:0.3rem 0.7rem;border-radius:8px;font-size:0.78rem;cursor:pointer;transition:all 0.2s;margin-right:4px}
+  .action-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .action-btn.del:hover{border-color:#E74C3C;color:#E74C3C}
+  .add-btn{background:var(--gold);color:var(--dark);border:none;padding:0.5rem 1.2rem;border-radius:20px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+  .add-btn:hover{background:var(--gold-light)}
+  .dash-tabs{display:flex;gap:1rem;flex-wrap:wrap}
+  .dash-tab{background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);padding:0.5rem 1.2rem;border-radius:20px;font-size:0.85rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+  .dash-tab.active,.dash-tab:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.08)}
+  .sub-page{display:none}.sub-page.active{display:block}
+  .back-btn{background:none;border:none;color:var(--gold);cursor:pointer;font-size:0.875rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;font-family:'DM Sans',sans-serif}
+  input[type="number"]{-moz-appearance:textfield}
+  .input-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .filter-bar{display:flex;gap:0.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
+  .filter-bar input,.filter-bar select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text-light);font-size:0.85rem;font-family:'DM Sans',sans-serif;outline:none}
+  .filter-bar input:focus{border-color:var(--gold)}
+  .toast{position:fixed;bottom:2rem;right:2rem;background:#1A1A2E;border:1px solid var(--gold);border-radius:12px;padding:1rem 1.5rem;font-size:0.875rem;color:var(--text-light);z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:300px}
+  .toast.show{transform:translateY(0);opacity:1}
+  .progress{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:0.5rem;overflow:hidden}
+  .progress-bar{height:100%;background:var(--gold);border-radius:3px}
+  .client-content{padding:2rem}
+  @media(max-width:768px){
+    .dashboard-layout,.admin-layout{grid-template-columns:1fr}
+    .sidebar,.admin-sidebar{display:none}
+    .stats-row{grid-template-columns:1fr 1fr}
+    .form-row,.input-row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== TOAST ========== -->
+<div class="toast" id="toast"></div>
+
+<!-- ========== LOGIN MODAL ========== -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('loginModal')">&#x2715;</button>
+    <div class="modal-title">Welcome Back</div>
+    <div class="modal-sub">Sign in to continue your adventure</div>
+    <div id="loginMsg"></div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="loginEmail" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+    <button class="form-btn" onclick="handleLogin()">Sign In</button>
+    <div class="modal-switch">Don't have an account? <a onclick="switchModal('loginModal','registerModal')">Register here</a></div>
+    <div class="modal-switch" style="margin-top:0.5rem">Are you admin? <a onclick="switchModal('loginModal','adminLoginModal')">Admin Login</a></div>
+  </div>
+</div>
+
+<!-- ========== REGISTER MODAL ========== -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeModal('registerModal')">&#x2715;</button>
+    <div class="modal-title">Create Account</div>
+    <div class="modal-sub">Join thousands of happy travelers</div>
+    <div id="regMsg"></div>
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input type="text" id="regFirst" placeholder="John"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="regLast" placeholder="Doe"></div>
+    </div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" id="regPhone" placeholder="+91 98765 43210"></div>
+    <div class="form-group"><label>Date of Birth</label><input type="date" id="regDob"></div>
+    <div class="form-group"><label>Nationality</label><select id="regNat"><option value="">Select country</option><option>India</option><option>United States</option><option>United Kingdom</option><option>UAE</option><option>Australia</option><option>Canada</option><option>Singapore</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Min 6 chars"></div>
+      <div class="form-group"><label>Confirm Password</label><input type="password" id="regPass2" placeholder="••••••••"></div>
+    </div>
+    <button class="form-btn" onclick="handleRegister()">Create Account</button>
+    <div class="modal-switch">Already have an account? <a onclick="switchModal('registerModal','loginModal')">Sign in</a></div>
+  </div>
+</div>
+
+<!-- ========== ADMIN LOGIN MODAL ========== -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('adminLoginModal')">&#x2715;</button>
+    <div class="modal-title" style="color:var(--gold)">Admin Portal</div>
+    <div class="modal-sub">Restricted access — authorized personnel only</div>
+    <div id="adminLoginMsg"></div>
+    <div class="form-group"><label>Admin Username</label><input type="text" id="adminUser" placeholder="admin"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="adminPass" placeholder="••••••••"></div>
+    <button class="form-btn" onclick="handleAdminLogin()">Access Dashboard</button>
+    <div class="modal-switch"><a onclick="switchModal('adminLoginModal','loginModal')">&#8592; Back to client login</a></div>
+    <div class="modal-sub" style="margin-top:1rem;font-size:0.78rem">Demo: admin / admin123</div>
+  </div>
+</div>
+
+<!-- ========== BOOKING MODAL ========== -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('bookModal')">&#x2715;</button>
+    <div class="modal-title">Book Your Tour</div>
+    <div class="modal-sub" id="bookTourName">Tour Name</div>
+    <div id="bookMsg"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Travel Date</label><input type="date" id="bookDate"></div>
+      <div class="form-group"><label>Travelers</label><input type="number" id="bookTravelers" min="1" max="20" value="2"></div>
+    </div>
+    <div class="form-group"><label>Room Type</label><select id="bookRoom"><option>Standard</option><option>Deluxe</option><option>Suite</option></select></div>
+    <div class="form-group"><label>Special Requests</label><input type="text" id="bookReq" placeholder="Any dietary or accessibility needs?"></div>
+    <div style="background:rgba(201,168,76,0.08);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;font-size:0.875rem;color:var(--text-muted)"><span>Base price/person</span><span id="bookPrice">₹0</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.875rem;color:var(--text-muted);margin-top:0.4rem"><span>Travelers</span><span id="bookTravNum">2</span></div>
+      <div style="border-top:1px solid var(--border);margin-top:0.6rem;padding-top:0.6rem;display:flex;justify-content:space-between;font-weight:700;color:var(--gold)"><span>Total</span><span id="bookTotal">₹0</span></div>
+    </div>
+    <button class="form-btn" onclick="confirmBooking()">Confirm Booking</button>
+  </div>
+</div>
+
+<!-- ========== LANDING PAGE ========== -->
+<div class="view active" id="landingView">
+  <!-- Navbar -->
+  <nav>
+    <div class="logo" onclick="showView('landingView')">Wander<span>Lux</span></div>
+    <div class="nav-links">
+      <a onclick="scrollTo('#tours')">Tours</a>
+      <a onclick="scrollTo('#features')">Why Us</a>
+      <a onclick="scrollTo('#contact')">Contact</a>
+      <button class="nav-btn outline" onclick="openModal('loginModal')">Sign In</button>
+      <button class="nav-btn" onclick="openModal('registerModal')">Register</button>
+    </div>
+  </nav>
+
+  <!-- Hero Carousel -->
+  <div class="hero" id="heroSection">
+    <div class="hero-bg">
+      <div class="slide slide-1 active-slide"></div>
+      <div class="slide slide-2"></div>
+      <div class="slide slide-3"></div>
+      <div class="hero-art">
+        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          <defs><radialGradient id="g1" cx="50%" cy="50%"><stop offset="0%" stop-color="#C9A84C" stop-opacity="0.4"/><stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/></radialGradient></defs>
+          <circle cx="900" cy="200" r="400" fill="url(#g1)" opacity="0.6"/>
+          <circle cx="200" cy="600" r="300" fill="url(#g1)" opacity="0.4"/>
+          <line x1="0" y1="400" x2="1200" y2="380" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/>
+          <line x1="0" y1="500" x2="1200" y2="480" stroke="#C9A84C" stroke-width="0.5" opacity="0.2"/>
+          <polygon points="600,50 700,200 500,200" fill="#C9A84C" opacity="0.06"/>
+          <polygon points="200,300 300,500 100,500" fill="#C9A84C" opacity="0.06"/>
+          <polygon points="950,500 1050,700 850,700" fill="#C9A84C" opacity="0.06"/>
+        </svg>
+      </div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">&#9733; Premium Travel Experiences</div>
+      <h1>Discover the World<br>in <span>Luxury &amp; Style</span></h1>
+      <p>Handcrafted journeys to the world's most breathtaking destinations. Expert guides, 5-star accommodations, unforgettable memories.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.getElementById('tours').scrollIntoView({behavior:'smooth'})">Explore Tours</button>
+        <button class="btn-secondary" onclick="openModal('registerModal')">Join Free</button>
+      </div>
+    </div>
+    <div class="carousel-dots">
+      <div class="dot active" onclick="goSlide(0)"></div>
+      <div class="dot" onclick="goSlide(1)"></div>
+      <div class="dot" onclick="goSlide(2)"></div>
+    </div>
+  </div>
+
+  <!-- Tour Cards -->
+  <section id="tours" style="background:var(--dark2)">
+    <div class="section-header">
+      <div class="section-label">&#127758; Our Destinations</div>
+      <div class="section-title">Popular Tour Packages</div>
+      <div class="section-sub">Carefully curated experiences for every kind of traveler</div>
+    </div>
+    <div class="tours-grid" id="tourCards"></div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" style="background:var(--dark3)">
+    <div class="section-header">
+      <div class="section-label">&#10024; Why Choose Us</div>
+      <div class="section-title">Travel Without Worry</div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feat-icon">&#9989;</div><div class="feat-title">Verified Tours</div><div class="feat-desc">Every tour is personally vetted by our expert travel team</div></div>
+      <div class="feature-card"><div class="feat-icon">&#128274;</div><div class="feat-title">Safe & Secure</div><div class="feat-desc">100% encrypted bookings with full money-back guarantee</div></div>
+      <div class="feature-card"><div class="feat-icon">&#127968;</div><div class="feat-title">5-Star Stays</div><div class="feat-desc">Handpicked luxury accommodations at every destination</div></div>
+      <div class="feature-card"><div class="feat-icon">&#128222;</div><div class="feat-title">24/7 Support</div><div class="feat-desc">Our travel experts are available around the clock for you</div></div>
+    </div>
+  </section>
+
+  <!-- Contact/Footer -->
+  <section id="contact" style="background:var(--dark);text-align:center">
+    <div class="section-label">&#128231; Get In Touch</div>
+    <div class="section-title" style="font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:1rem">Ready to Explore?</div>
+    <p style="color:var(--text-muted);margin-bottom:2rem">Contact us and let's plan your perfect getaway</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <div style="color:var(--text-muted);font-size:0.9rem">&#128205; New Delhi, India</div>
+      <div style="color:var(--text-muted);font-size:0.9rem">&#128222; +91 98765 43210</div>
+      <div style="color:var(--text-muted);font-size:0.9rem">&#128231; hello@wanderlux.in</div>
+    </div>
+    <div style="margin-top:3rem;border-top:1px solid rgba(255,255,255,0.06);padding-top:1.5rem;color:var(--text-muted);font-size:0.8rem">&#169; 2024 WanderLux Travel. All rights reserved.</div>
+  </section>
+</div>
+
+<!-- ========== CLIENT DASHBOARD ========== -->
+<div class="view" id="clientView">
+  <nav>
+    <div class="logo" onclick="showView('landingView')">Wander<span>Lux</span></div>
+    <div class="nav-links">
+      <span style="color:var(--text-muted);font-size:0.875rem" id="clientNavName"></span>
+      <button class="nav-btn outline" onclick="handleLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dashboard-layout">
+    <div class="sidebar">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="clientAvatar">U</div>
+        <div class="user-name" id="clientSidebarName">User</div>
+        <div class="user-role">Member</div>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a class="active" onclick="clientTab('overview')">&#128200; Overview</a></li>
+        <li><a onclick="clientTab('mybookings')">&#128203; My Bookings</a></li>
+        <li><a onclick="clientTab('browse')">&#127758; Browse Tours</a></li>
+        <li><a onclick="clientTab('profile')">&#128100; My Profile</a></li>
+      </ul>
+    </div>
+    <div class="client-content" id="clientMain">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========== ADMIN DASHBOARD ========== -->
+<div class="view" id="adminView">
+  <div class="admin-header">
+    <div class="admin-logo">&#9670; WanderLux Admin</div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <span style="color:var(--text-muted);font-size:0.875rem">Welcome, Admin</span>
+      <button class="nav-btn outline" onclick="handleLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <ul class="admin-nav">
+        <li><a class="active" onclick="adminTab('dashboard')">&#9732; Dashboard</a></li>
+        <li><a onclick="adminTab('bookings')">&#128203; Bookings</a></li>
+        <li><a onclick="adminTab('tours')">&#127758; Manage Tours</a></li>
+        <li><a onclick="adminTab('users')">&#128101; Users</a></li>
+        <li><a onclick="adminTab('revenue')">&#128184; Revenue</a></li>
+        <li><a onclick="adminTab('settings')">&#9881; Settings</a></li>
+      </ul>
+    </div>
+    <div class="admin-main" id="adminMain">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA STORE ============
+let APP = {
+  currentUser: null,
+  isAdmin: false,
+  users: [
+    {id:1,first:'Aryan',last:'Rana',email:'Aryan239@gmail.com',phone:'+91 7807861659',dob:'2005-04-05',nationality:'Pakistan',pass:'pass123',bookings:[1,2]},
+     {id:2,first:'Shubam',last:'Mehta',email:'shuabam123@gmail.com',phone:'+91 87654 32109',dob:'1993-08-22',nationality:'India',pass:'pass123',bookings:[3]}
+  ],
+  tours: [
+    {id:1,name:'Golden Triangle',location:'Delhi • Agra • Jaipur',duration:'7 Days',groupSize:'2-15',price:45000,rating:4.9,reviews:312,tag:'Bestseller',category:'Cultural',description:'Explore India\'s most iconic cities and monuments',available:true},
+    {id:2,name:'Kerala Backwaters',location:'Kochi • Alleppey • Munnar',duration:'5 Days',groupSize:'2-12',price:32000,rating:4.8,reviews:198,tag:'Popular',category:'Nature',description:'Cruise through serene backwaters and lush hills',available:true},
+    {id:3,name:'Bali Serenity',location:'Ubud • Seminyak • Nusa Penida',duration:'8 Days',groupSize:'2-10',price:75000,rating:4.9,reviews:445,tag:'Trending',category:'Beach',description:'Discover the island of gods with luxury stays',available:true},
+    {id:4,name:'Dubai Luxe',location:'Dubai • Abu Dhabi',duration:'6 Days',groupSize:'2-20',price:95000,rating:4.7,reviews:267,tag:'Luxury',category:'City',description:'Experience opulence in the heart of the Middle East',available:true},
+    {id:5,name:'Himalayan Trek',location:'Manali • Spiti • Leh',duration:'10 Days',groupSize:'4-12',price:55000,rating:4.8,reviews:189,tag:'Adventure',category:'Adventure',description:'Epic high-altitude journey through the Himalayas',available:true},
+    {id:6,name:'Rajasthan Royal',location:'Jaipur • Jodhpur • Udaipur',duration:'9 Days',groupSize:'2-15',price:68000,rating:4.9,reviews:356,tag:'Bestseller',category:'Cultural',description:'Live like royalty in the land of maharajas',available:true}
+  ],
+  bookings: [
+    {id:'WL-001',userId:1,tourId:1,tourName:'Golden Triangle',date:'2024-03-15',travelers:2,room:'Deluxe',total:90000,status:'Confirmed',bookedOn:'2024-01-10'},
+    {id:'WL-002',userId:1,tourId:3,tourName:'Bali Serenity',date:'2024-05-20',travelers:2,room:'Suite',total:150000,status:'Pending',bookedOn:'2024-02-05'},
+    {id:'WL-003',userId:2,tourId:2,tourName:'Kerala Backwaters',date:'2024-04-10',travelers:4,room:'Standard',total:128000,status:'Confirmed',bookedOn:'2024-01-25'},
+    {id:'WL-004',userId:1,tourId:5,tourName:'Himalayan Trek',date:'2024-06-01',travelers:3,room:'Standard',total:165000,status:'Cancelled',bookedOn:'2024-02-15'}
+  ],
+  nextBookId: 5,
+  nextUserId: 3,
+  nextTourId: 7,
+  currentBookingTour: null,
+  slideIdx: 0,
+  adminCurrentTab: 'dashboard',
+  clientCurrentTab: 'overview'
+};
+
+// ============ CAROUSEL ============
+setInterval(()=>{
+  APP.slideIdx=(APP.slideIdx+1)%3;
+  goSlide(APP.slideIdx);
+},4500);
+function goSlide(i){
+  APP.slideIdx=i;
+  document.querySelectorAll('.slide').forEach((s,idx)=>s.classList.toggle('active-slide',idx===i));
+  document.querySelectorAll('.dot').forEach((d,idx)=>d.classList.toggle('active',idx===i));
+}
+
+// ============ TOUR CARDS ============
+function renderTourCards(container, tours, showBookBtn=true){
+  const colors=['#1a3a5c','#1a3a2c','#3a1a2c','#2c1a3a','#3a2c1a','#1a2c3a'];
+  container.innerHTML=tours.map((t,i)=>`
+    <div class="tour-card" onclick="openBooking(${t.id})">
+      <div class="card-img" style="background:${colors[i%colors.length]}">
+        <svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+          <defs><radialGradient id="cg${i}" cx="50%" cy="50%"><stop offset="0%" stop-color="#C9A84C" stop-opacity="0.35"/><stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/></radialGradient></defs>
+          <circle cx="200" cy="60" r="120" fill="url(#cg${i})"/>
+          <text x="150" y="100" text-anchor="middle" fill="rgba(201,168,76,0.18)" font-size="72" font-family="serif">&#9992;</text>
+          <text x="150" y="155" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="13" font-family="'DM Sans',sans-serif">${t.location}</text>
+        </svg>
+        <div class="card-badge">${t.tag}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-location">&#127758; ${t.location.split('•')[0].trim()}</div>
+        <div class="card-title">${t.name}</div>
+        <div class="card-meta"><span>&#9200; ${t.duration}</span><span>&#128101; ${t.groupSize} pax</span><span>&#11088; ${t.rating}</span></div>
+        <div class="card-footer">
+          <div class="card-price">₹${t.price.toLocaleString('en-IN')}<span>/person</span></div>
+          ${showBookBtn?`<button class="book-btn" onclick="event.stopPropagation();openBooking(${t.id})">Book Now</button>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+renderTourCards(document.getElementById('tourCards'),APP.tours);
+
+// ============ MODAL HELPERS ============
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function switchModal(from,to){closeModal(from);openModal(to)}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+// ============ AUTH ============
+function handleLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  const user=APP.users.find(u=>u.email===email&&u.pass===pass);
+  if(!user){showMsg('loginMsg','Invalid email or password','error');return;}
+  APP.currentUser=user;APP.isAdmin=false;
+  closeModal('loginModal');
+  showToast('Welcome back, '+user.first+'! ✈️');
+  showClientDash();
+}
+function handleAdminLogin(){
+  const u=document.getElementById('adminUser').value.trim();
+  const p=document.getElementById('adminPass').value;
+  console.log('Admin login attempt:',u,p);
+  if(u==='admin'&&p==='admin123'){APP.isAdmin=true;closeModal('adminLoginModal');showAdminDash();showToast('Admin access granted ✓');}
+  else showMsg('adminLoginMsg','Invalid credentials','error');
+}
+function handleRegister(){
+  const first=document.getElementById('regFirst').value.trim();
+  const last=document.getElementById('regLast').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const phone=document.getElementById('regPhone').value.trim();
+  const dob=document.getElementById('regDob').value;
+  const nat=document.getElementById('regNat').value;
+  const pass=document.getElementById('regPass').value;
+  const pass2=document.getElementById('regPass2').value;
+  if(!first||!last||!email||!phone||!pass){showMsg('regMsg','Please fill all required fields','error');return;}
+  if(pass.length<6){showMsg('regMsg','Password must be at least 6 characters','error');return;}
+  if(pass!==pass2){showMsg('regMsg','Passwords do not match','error');return;}
+  if(APP.users.find(u=>u.email===email)){showMsg('regMsg','Email already registered','error');return;}
+  const newUser={id:APP.nextUserId++,first,last,email,phone,dob,nationality:nat,pass,bookings:[]};
+  APP.users.push(newUser);APP.currentUser=newUser;APP.isAdmin=false;
+  closeModal('registerModal');showToast('Account created! Welcome, '+first+'! 🎉');showClientDash();
+}
+function handleLogout(){APP.currentUser=null;APP.isAdmin=false;showView('landingView');showToast('Logged out successfully');}
+
+// ============ BOOKING ============
+function openBooking(tourId){
+  const tour=APP.tours.find(t=>t.id===tourId);
+  if(!tour)return;
+  if(!APP.currentUser&&!APP.isAdmin){openModal('loginModal');showMsg('loginMsg','Please sign in to book tours','error');return;}
+  APP.currentBookingTour=tour;
+  document.getElementById('bookTourName').textContent='&#128205; '+tour.name;
+  document.getElementById('bookPrice').textContent='₹'+tour.price.toLocaleString('en-IN');
+  updateBookTotal();
+  openModal('bookModal');
+}
+function updateBookTotal(){
+  const n=parseInt(document.getElementById('bookTravelers').value)||1;
+  document.getElementById('bookTravNum').textContent=n;
+  const price=APP.currentBookingTour?APP.currentBookingTour.price:0;
+  document.getElementById('bookTotal').textContent='₹'+(price*n).toLocaleString('en-IN');
+}
+document.getElementById('bookTravelers').addEventListener('input',updateBookTotal);
+function confirmBooking(){
+  const date=document.getElementById('bookDate').value;
+  const travelers=parseInt(document.getElementById('bookTravelers').value)||1;
+  const room=document.getElementById('bookRoom').value;
+  const req=document.getElementById('bookReq').value;
+  if(!date){showMsg('bookMsg','Please select a travel date','error');return;}
+  const t=APP.currentBookingTour;
+  const booking={id:'WL-00'+APP.nextBookId++,userId:APP.currentUser.id,tourId:t.id,tourName:t.name,date,travelers,room,special:req,total:t.price*travelers,status:'Confirmed',bookedOn:new Date().toISOString().split('T')[0]};
+  APP.bookings.push(booking);
+  if(APP.currentUser)APP.currentUser.bookings.push(booking.id);
+  closeModal('bookModal');showToast('Booking confirmed! '+booking.id+' ✓');
+  if(!APP.isAdmin)renderClientTab(APP.clientCurrentTab);
+}
+
+// ============ VIEWS ============
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function scrollTo(sel){document.querySelector(sel).scrollIntoView({behavior:'smooth'})}
+function showClientDash(){
+  document.getElementById('clientNavName').textContent='Hello, '+APP.currentUser.first;
+  document.getElementById('clientAvatar').textContent=APP.currentUser.first[0]+APP.currentUser.last[0];
+  document.getElementById('clientSidebarName').textContent=APP.currentUser.first+' '+APP.currentUser.last;
+  showView('clientView');renderClientTab('overview');
+}
+function showAdminDash(){showView('adminView');renderAdminTab('dashboard');}
+
+// ============ CLIENT TABS ============
+function clientTab(tab){
+  APP.clientCurrentTab=tab;
+  document.querySelectorAll('.sidebar-nav li a').forEach(a=>a.classList.remove('active'));
+  event.target.classList.add('active');
+  renderClientTab(tab);
+}
+function renderClientTab(tab){
+  const el=document.getElementById('clientMain');
+  const u=APP.currentUser;
+  const myBookings=APP.bookings.filter(b=>b.userId===u.id);
+  if(tab==='overview'){
+    const upcoming=myBookings.filter(b=>b.status==='Confirmed').length;
+    el.innerHTML=`
+      <div class="page-title">Good day, ${u.first}! ✈️</div>
+      <div class="page-sub">Here's a summary of your travel activity</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem">
+        <div class="stat-card"><div class="stat-icon">&#128203;</div><div class="stat-val">${myBookings.length}</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat-card"><div class="stat-icon">&#9989;</div><div class="stat-val">${upcoming}</div><div class="stat-lbl">Upcoming Trips</div></div>
+        <div class="stat-card"><div class="stat-icon">&#128184;</div><div class="stat-val">₹${myBookings.reduce((s,b)=>s+b.total,0).toLocaleString('en-IN')}</div><div class="stat-lbl">Total Spent</div></div>
+      </div>
+      <div class="admin-card"><div class="admin-card-head"><div class="admin-card-title">Recent Bookings</div></div>
+      ${myBookings.length===0?'<p style="color:var(--text-muted);text-align:center;padding:2rem">No bookings yet. <a onclick="clientTab(\'browse\')" style="color:var(--gold);cursor:pointer">Explore tours →</a></p>':
+      `<div class="table-wrap"><table><thead><tr><th>Booking ID</th><th>Tour</th><th>Date</th><th>Total</th><th>Status</th></tr></thead><tbody>
+      ${myBookings.slice(-3).reverse().map(b=>`<tr><td style="color:var(--gold)">${b.id}</td><td>${b.tourName}</td><td>${b.date}</td><td>₹${b.total.toLocaleString('en-IN')}</td><td><span class="badge ${b.status==='Confirmed'?'badge-success':b.status==='Pending'?'badge-warn':'badge-error'}">${b.status}</span></td></tr>`).join('')}
+      </tbody></table></div>`}</div>`;
+  }else if(tab==='mybookings'){
+    el.innerHTML=`<div class="page-title">My Bookings</div><div class="page-sub">All your travel reservations</div>
+    ${myBookings.length===0?'<div class="admin-card" style="text-align:center;padding:3rem"><p style="color:var(--text-muted);margin-bottom:1rem">No bookings yet!</p><button class="add-btn" onclick="clientTab(\'browse\')">Browse Tours</button></div>':
+    `<div class="admin-card"><div class="table-wrap"><table><thead><tr><th>Booking ID</th><th>Tour</th><th>Travel Date</th><th>Travelers</th><th>Room</th><th>Total</th><th>Status</th></tr></thead><tbody>
+    ${myBookings.map(b=>`<tr><td style="color:var(--gold);font-weight:600">${b.id}</td><td>${b.tourName}</td><td>${b.date}</td><td>${b.travelers}</td><td>${b.room}</td><td>₹${b.total.toLocaleString('en-IN')}</td><td><span class="badge ${b.status==='Confirmed'?'badge-success':b.status==='Pending'?'badge-warn':'badge-error'}">${b.status}</span></td></tr>`).join('')}
+    </tbody></table></div></div>`}`;
+  }else if(tab==='browse'){
+    el.innerHTML=`<div class="page-title">Browse Tours</div><div class="page-sub">Find your perfect next adventure</div><div class="tours-grid" id="clientTourGrid"></div>`;
+    renderTourCards(document.getElementById('clientTourGrid'),APP.tours);
+  }else if(tab==='profile'){
+    el.innerHTML=`<div class="page-title">My Profile</div><div class="page-sub">Manage your personal information</div>
+    <div class="admin-card" style="max-width:500px">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div class="user-avatar" style="width:60px;height:60px;font-size:1.4rem">${u.first[0]}${u.last[0]}</div>
+        <div><div style="font-size:1.1rem;font-weight:600">${u.first} ${u.last}</div><div style="color:var(--text-muted);font-size:0.875rem">${u.email}</div></div>
+      </div>
+      <div style="display:grid;gap:0.8rem;font-size:0.9rem">
+        <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--text-muted)">Full Name</span><span>${u.first} ${u.last}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--text-muted)">Email</span><span>${u.email}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--text-muted)">Phone</span><span>${u.phone||'—'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--text-muted)">Date of Birth</span><span>${u.dob||'—'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:0.6rem 0"><span style="color:var(--text-muted)">Nationality</span><span>${u.nationality||'—'}</span></div>
+      </div>
+    </div>`;
+  }
+}
+
+// ============ ADMIN TABS ============
+function adminTab(tab){
+  APP.adminCurrentTab=tab;
+  document.querySelectorAll('.admin-nav li a').forEach(a=>a.classList.remove('active'));
+  event.target.classList.add('active');
+  renderAdminTab(tab);
+}
+function renderAdminTab(tab){
+  const el=document.getElementById('adminMain');
+  const totalRev=APP.bookings.reduce((s,b)=>s+(b.status!=='Cancelled'?b.total:0),0);
+  if(tab==='dashboard'){
+    el.innerHTML=`
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Overview of your travel business</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">&#128203;</div><div class="stat-val">${APP.bookings.length}</div><div class="stat-lbl">Total Bookings</div><div class="stat-change">&#8679; Active</div></div>
+        <div class="stat-card"><div class="stat-icon">&#128101;</div><div class="stat-val">${APP.users.length}</div><div class="stat-lbl">Registered Users</div><div class="stat-change">&#8679; Growing</div></div>
+        <div class="stat-card"><div class="stat-icon">&#127758;</div><div class="stat-val">${APP.tours.length}</div><div class="stat-lbl">Active Tours</div><div class="stat-change">&#8679; All Live</div></div>
+        <div class="stat-card"><div class="stat-icon">&#128184;</div><div class="stat-val">₹${(totalRev/1000).toFixed(0)}K</div><div class="stat-lbl">Total Revenue</div><div class="stat-change">&#8679; +12% MoM</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <div class="admin-card">
+          <div class="admin-card-head"><div class="admin-card-title">Recent Bookings</div><a onclick="adminTab('bookings')" style="color:var(--gold);font-size:0.8rem;cursor:pointer">View all →</a></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Tour</th><th>Status</th><th>Amount</th></tr></thead><tbody>
+          ${APP.bookings.slice(-4).reverse().map(b=>`<tr><td style="color:var(--gold)">${b.id}</td><td>${b.tourName}</td><td><span class="badge ${b.status==='Confirmed'?'badge-success':b.status==='Pending'?'badge-warn':'badge-error'}">${b.status}</span></td><td>₹${b.total.toLocaleString('en-IN')}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-head"><div class="admin-card-title">Tour Popularity</div></div>
+          ${APP.tours.slice(0,4).map(t=>{const cnt=APP.bookings.filter(b=>b.tourId===t.id).length;const pct=Math.max(10,cnt*30);return`<div style="margin-bottom:0.8rem"><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.3rem"><span>${t.name}</span><span style="color:var(--gold)">${cnt} bookings</span></div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></div>`}).join('')}
+        </div>
+      </div>`;
+  }else if(tab==='bookings'){
+    el.innerHTML=`<div class="page-title">All Bookings</div><div class="page-sub">Manage and track all travel bookings</div>
+    <div class="filter-bar"><input type="text" placeholder="Search..." oninput="filterBookings(this.value)" id="bSearch"><select onchange="filterBookings()" id="bStatus"><option value="">All Status</option><option>Confirmed</option><option>Pending</option><option>Cancelled</option></select></div>
+    <div class="admin-card"><div class="table-wrap"><table><thead><tr><th>Booking ID</th><th>Customer</th><th>Tour</th><th>Date</th><th>Travelers</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bookingsBody"></tbody></table></div></div>`;
+    renderBookingsTable(APP.bookings);
+  }else if(tab==='tours'){
+    el.innerHTML=`<div class="page-title">Manage Tours</div><div class="page-sub">Add, edit, and manage all tour packages</div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><button class="add-btn" onclick="showAddTour()">+ Add New Tour</button></div>
+    <div id="tourFormArea"></div>
+    <div class="admin-card"><div class="table-wrap"><table><thead><tr><th>Tour</th><th>Location</th><th>Duration</th><th>Price</th><th>Category</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+    ${APP.tours.map(t=>`<tr><td><strong>${t.name}</strong></td><td>${t.location}</td><td>${t.duration}</td><td>₹${t.price.toLocaleString('en-IN')}</td><td>${t.category}</td><td>&#11088; ${t.rating}</td><td><span class="badge ${t.available?'badge-success':'badge-error'}">${t.available?'Active':'Inactive'}</span></td><td><button class="action-btn" onclick="toggleTour(${t.id})">${t.available?'Deactivate':'Activate'}</button><button class="action-btn del" onclick="deleteTour(${t.id})">Delete</button></td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  }else if(tab==='users'){
+    el.innerHTML=`<div class="page-title">Users</div><div class="page-sub">All registered travelers</div>
+    <div class="admin-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Nationality</th><th>Bookings</th><th>Actions</th></tr></thead><tbody>
+    ${APP.users.map(u=>`<tr><td><strong>${u.first} ${u.last}</strong></td><td>${u.email}</td><td>${u.phone||'—'}</td><td>${u.nationality||'—'}</td><td>${u.bookings.length}</td><td><button class="action-btn" onclick="viewUserBookings(${u.id})">View Bookings</button><button class="action-btn del" onclick="deleteUser(${u.id})">Remove</button></td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  }else if(tab==='revenue'){
+    const confirmed=APP.bookings.filter(b=>b.status==='Confirmed');
+    const pending=APP.bookings.filter(b=>b.status==='Pending');
+    const cancelled=APP.bookings.filter(b=>b.status==='Cancelled');
+    el.innerHTML=`<div class="page-title">Revenue</div><div class="page-sub">Financial overview and analytics</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">&#9989;</div><div class="stat-val">₹${confirmed.reduce((s,b)=>s+b.total,0).toLocaleString('en-IN')}</div><div class="stat-lbl">Confirmed Revenue</div></div>
+      <div class="stat-card"><div class="stat-icon">&#8987;</div><div class="stat-val">₹${pending.reduce((s,b)=>s+b.total,0).toLocaleString('en-IN')}</div><div class="stat-lbl">Pending Revenue</div></div>
+      <div class="stat-card"><div class="stat-icon">&#10060;</div><div class="stat-val">₹${cancelled.reduce((s,b)=>s+b.total,0).toLocaleString('en-IN')}</div><div class="stat-lbl">Cancelled Value</div></div>
+      <div class="stat-card"><div class="stat-icon">&#128200;</div><div class="stat-val">${APP.bookings.length>0?Math.round(totalRev/APP.bookings.length).toLocaleString('en-IN'):'0'}</div><div class="stat-lbl">Avg Booking Value</div></div>
+    </div>
+    <div class="admin-card"><div class="admin-card-head"><div class="admin-card-title">Revenue by Tour</div></div>
+    ${APP.tours.map(t=>{const rev=APP.bookings.filter(b=>b.tourId===t.id&&b.status!=='Cancelled').reduce((s,b)=>s+b.total,0);const pct=totalRev>0?Math.round(rev/totalRev*100):0;return`<div style="margin-bottom:1rem"><div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.4rem"><span>${t.name}</span><span style="color:var(--gold)">₹${rev.toLocaleString('en-IN')} <span style="color:var(--text-muted)">(${pct}%)</span></span></div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></div>`}).join('')}
+    </div>`;
+  }else if(tab==='settings'){
+    el.innerHTML=`<div class="page-title">Settings</div><div class="page-sub">System configuration</div>
+    <div class="admin-card" style="max-width:500px">
+      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div style="font-weight:600;margin-bottom:0.3rem">Business Name</div>
+        <div style="color:var(--text-muted);font-size:0.875rem;margin-bottom:0.6rem">Your travel company name</div>
+        <input type="text" value="WanderLux Travel" style="width:100%;padding:0.6rem 0.8rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text-light);font-family:'DM Sans',sans-serif">
+      </div>
+      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div style="font-weight:600;margin-bottom:0.3rem">Contact Email</div>
+        <input type="email" value="hello@wanderlux.in" style="width:100%;padding:0.6rem 0.8rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text-light);font-family:'DM Sans',sans-serif">
+      </div>
+      <div>
+        <div style="font-weight:600;margin-bottom:0.3rem">Currency</div>
+        <select style="width:100%;padding:0.6rem 0.8rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text-light);font-family:'DM Sans',sans-serif"><option>INR (₹)</option><option>USD ($)</option><option>EUR (€)</option></select>
+      </div>
+      <button class="form-btn" style="margin-top:1.5rem" onclick="showToast('Settings saved ✓')">Save Changes</button>
+    </div>`;
+  }
+}
+
+function renderBookingsTable(bookings){
+  const el=document.getElementById('bookingsBody');
+  if(!el)return;
+  el.innerHTML=bookings.map(b=>{
+    const u=APP.users.find(u=>u.id===b.userId);
+    return`<tr><td style="color:var(--gold);font-weight:600">${b.id}</td><td>${u?u.first+' '+u.last:'Unknown'}</td><td>${b.tourName}</td><td>${b.date}</td><td>${b.travelers}</td><td>₹${b.total.toLocaleString('en-IN')}</td><td><span class="badge ${b.status==='Confirmed'?'badge-success':b.status==='Pending'?'badge-warn':'badge-error'}">${b.status}</span></td><td>
+    <select onchange="updateBookingStatus('${b.id}',this.value)" style="background:#1A1A2E;border:1px solid rgba(255,255,255,0.1);color:var(--text-light);padding:0.3rem;border-radius:6px;font-size:0.78rem">
+      <option ${b.status==='Confirmed'?'selected':''}>Confirmed</option>
+      <option ${b.status==='Pending'?'selected':''}>Pending</option>
+      <option ${b.status==='Cancelled'?'selected':''}>Cancelled</option>
+    </select>
+    </td></tr>`;
+  }).join('');
+}
+function filterBookings(v){
+  const search=(document.getElementById('bSearch')?.value||'').toLowerCase();
+  const status=document.getElementById('bStatus')?.value||'';
+  const filtered=APP.bookings.filter(b=>{
+    const u=APP.users.find(u=>u.id===b.userId);
+    const name=u?u.first+' '+u.last:'';
+    const matchS=!search||b.tourName.toLowerCase().includes(search)||name.toLowerCase().includes(search)||b.id.toLowerCase().includes(search);
+    const matchSt=!status||b.status===status;
+    return matchS&&matchSt;
+  });
+  renderBookingsTable(filtered);
+}
+function updateBookingStatus(id,status){
+  const b=APP.bookings.find(b=>b.id===id);
+  if(b)b.status=status;
+  showToast('Status updated to '+status);
+}
+function showAddTour(){
+  document.getElementById('tourFormArea').innerHTML=`
+    <div class="admin-card" style="margin-bottom:1rem">
+      <div class="admin-card-title" style="margin-bottom:1rem">Add New Tour</div>
+      <div class="input-row"><div class="form-group"><label>Tour Name</label><input type="text" id="nt_name" placeholder="Tour name"></div><div class="form-group"><label>Location</label><input type="text" id="nt_loc" placeholder="City • City • City"></div></div>
+      <div class="input-row"><div class="form-group"><label>Duration</label><input type="text" id="nt_dur" placeholder="7 Days"></div><div class="form-group"><label>Group Size</label><input type="text" id="nt_grp" placeholder="2-15"></div></div>
+      <div class="input-row"><div class="form-group"><label>Price (₹)</label><input type="number" id="nt_price" placeholder="45000"></div><div class="form-group"><label>Category</label><select id="nt_cat"><option>Cultural</option><option>Nature</option><option>Beach</option><option>City</option><option>Adventure</option></select></div></div>
+      <div class="form-group"><label>Tag</label><input type="text" id="nt_tag" placeholder="Bestseller"></div>
+      <div class="form-group"><label>Description</label><input type="text" id="nt_desc" placeholder="Short description"></div>
+      <div style="display:flex;gap:0.8rem;margin-top:0.5rem">
+        <button class="add-btn" onclick="saveTour()">Save Tour</button>
+        <button class="action-btn" onclick="document.getElementById('tourFormArea').innerHTML=''">Cancel</button>
+      </div>
+    </div>`;
+}
+function saveTour(){
+  const name=document.getElementById('nt_name').value.trim();
+  const loc=document.getElementById('nt_loc').value.trim();
+  const price=parseInt(document.getElementById('nt_price').value)||0;
+  if(!name||!loc||!price){showToast('Please fill required fields');return;}
+  APP.tours.push({id:APP.nextTourId++,name,location:loc,duration:document.getElementById('nt_dur').value||'TBD',groupSize:document.getElementById('nt_grp').value||'2-10',price,rating:4.5,reviews:0,tag:document.getElementById('nt_tag').value||'New',category:document.getElementById('nt_cat').value,description:document.getElementById('nt_desc').value,available:true});
+  showToast('Tour added successfully ✓');renderAdminTab('tours');
+}
+function toggleTour(id){const t=APP.tours.find(t=>t.id===id);if(t){t.available=!t.available;showToast(t.name+(t.available?' activated':' deactivated'));renderAdminTab('tours');}};
+function deleteTour(id){if(!confirm('Delete this tour?'))return;APP.tours=APP.tours.filter(t=>t.id!==id);showToast('Tour deleted');renderAdminTab('tours');}
+function deleteUser(id){if(!confirm('Remove this user?'))return;APP.users=APP.users.filter(u=>u.id!==id);showToast('User removed');renderAdminTab('users');}
+function viewUserBookings(uid){
+  const u=APP.users.find(u=>u.id===uid);
+  const bks=APP.bookings.filter(b=>b.userId===uid);
+  alert(`Bookings for ${u.first} ${u.last}:\n${bks.map(b=>`${b.id} - ${b.tourName} (${b.status})`).join('\n')||'No bookings'}`);
+}
+
+// ============ TOAST ============
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function showMsg(id,msg,type){
+  const el=document.getElementById(id);
+  el.innerHTML=`<div class="msg ${type}">${msg}</div>`;
+  setTimeout(()=>{el.innerHTML=''},4000);
+}
+</script>
+</body>
+</html>
