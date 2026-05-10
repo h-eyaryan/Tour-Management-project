@@ -3,18 +3,18 @@ A Tour Management Project is a software application designed to help travel and 
 
 🔹 User Features:
 
-✔ User Registration & Login – Secure authentication system for customers
-✔ View Tour Packages – Browse all available tour packages with details like cost, destination, and duration
-✔ Book Tour Packages – Users can book tours by selecting a package and confirming their details
-✔ Cancel Bookings – Cancel an existing tour booking
-✔ View Booking Details – Check history and current bookings
-✔ Receive Payment Receipt – Get a digital receipt upon booking completion
+✔ User Registration & Login – Secure authentication system for customers <br>
+✔ View Tour Packages – Browse all available tour packages with details like cost, destination, and duration<br>
+✔ Book Tour Packages – Users can book tours by selecting a package and confirming their details<br>
+✔ Cancel Bookings – Cancel an existing tour booking<br>
+✔ View Booking Details – Check history and current bookings<br>
+✔ Receive Payment Receipt – Get a digital receipt upon booking completion<br><br>
 🔹 Admin Features:
 
-✔ Admin Login – Admin access with secure login
-✔ Add & Delete Tour Packages – Manage available tour packages
-✔ View All Customers – View all registered users
-✔ View Bookings – Monitor and manage all user bookings
-✔ View Payment Records – Keep track of all payment transactions
+✔ Admin Login – Admin access with secure login<br>
+✔ Add & Delete Tour Packages – Manage available tour packages<br>
+✔ View All Customers – View all registered users<br>
+✔ View Bookings – Monitor and manage all user bookings<br>
+✔ View Payment Records – Keep track of all payment transactions<br><br>
 
 Developed By: Aryan 
